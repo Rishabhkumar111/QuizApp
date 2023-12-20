@@ -5,6 +5,7 @@ export default function Answer({
   selectedAnswer,
   answerState,
   onSelect,
+  stopProgressBar
 }) {
   const shuffledAnswers = useRef();
   if (shuffledAnswers.current === undefined) {
@@ -24,7 +25,7 @@ export default function Answer({
         }
         return (
           <li key={answer} className="answer">
-            <button onClick={() => onSelect(answer)} className={cssClass}>
+            <button onClick={() => onSelect(answer)} className={cssClass} disabled = {stopProgressBar}>
               {answer}
             </button>
           </li>

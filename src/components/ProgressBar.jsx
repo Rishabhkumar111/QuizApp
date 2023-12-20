@@ -1,30 +1,44 @@
 import { useEffect, useState } from "react";
 
-export default function ProgressBar({ timeout, onTimeout }) {
+export default function ProgressBar({ timeout, onTimeout ,stopProgressBar}) {
   const [remainingTime, setremainingTime] = useState(timeout);
   useEffect(() => {
     console.log("Interval");
-    const interval = setInterval(() => {
-      setremainingTime((pre) => {
-        return pre - 100;
-      });
-    }, 100);
+    let interval;
 
-    return ()=>{
-        clearInterval(interval);
+    if (!stopProgressBar) {
+      interval = setInterval(() => {
+        setremainingTime((prev) => {
+          return prev - 100;
+        });
+      }, 100);
     }
 
-  }, []);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [stopProgressBar]);
 
   useEffect(() => {
     console.log("timeOut");
-    const timer = setTimeout(onTimeout, timeout);
-
+    let timer;
+    if (!stopProgressBar) {
+        timer = setTimeout(onTimeout, timeout);
+    }
     return ()=>{
         clearTimeout(timer);
     }
+  }, [onTimeout, timeout, stopProgressBar]);
 
-  }, [onTimeout, timeout]);
+  useEffect(()=>{
+    let timer;
+    if(stopProgressBar){
+        timer = setTimeout(onTimeout, 2000);
+    }
+    return ()=>{
+        clearTimeout(timer);
+    }
+  },[stopProgressBar])
 
-  return <progress id="question-time" max={timeout} value={remainingTime}/>;
+  return <progress id="question-time" max={timeout} value={remainingTime} className={stopProgressBar?'answered':undefined}/>;
 }

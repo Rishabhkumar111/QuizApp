@@ -3,32 +3,29 @@ import QUESTIONS from "../questions.js";
 import trophyImg from "../assets/quiz-complete.png";
 import ProgressBar from "./ProgressBar.jsx";
 import Answer from "./Answer.jsx";
+import GameOverPage from "./GameOverPage.jsx";
 
 export default function Quiz() {
   const [answerState, setAnswerState] = useState("");
   const [storedAnswer, setStoredAnswer] = useState([]);
   const questionIndex =
     answerState === "" ? storedAnswer.length : storedAnswer.length - 1;
-  const isQuizCompleted = QUESTIONS.length === storedAnswer.length;
-console.log(storedAnswer.length,isQuizCompleted);
-  if (isQuizCompleted) {
-    return (
-      <div id="summary">
-        <img src={trophyImg} alt="Trophy Image" />
-        <h2>Quiz Completed</h2>
-      </div>
-    );
-  }
+  const [isQuizCompleted, setisQuizCompleted] = useState(false);
+  console.log(storedAnswer.length, isQuizCompleted);
+  const [stopProgressBar, setStopProgressBar] = useState(false);
 
   const handleSelectedAnswer = useCallback(
     function handleSelectedAnswer(selectedAnswer) {
+        setStopProgressBar(true);
       setAnswerState("answered");
       setStoredAnswer((preAns) => {
         return [...preAns, selectedAnswer];
       });
-      if(selectedAnswer === null){
+      if (selectedAnswer === null) {
         setAnswerState("");
-        return ;
+        setStopProgressBar(false);
+        if (questionIndex == QUESTIONS.length - 1) setisQuizCompleted(true);
+        return;
       }
       setTimeout(() => {
         if (selectedAnswer === QUESTIONS[questionIndex].answers[0]) {
@@ -38,10 +35,12 @@ console.log(storedAnswer.length,isQuizCompleted);
         }
         setTimeout(() => {
           setAnswerState("");
+          setStopProgressBar(false);
+          if (questionIndex == QUESTIONS.length - 1) setisQuizCompleted(true);
         }, 2000);
       }, 1000);
     },
-    []
+    [questionIndex]
   );
 
   const skipAnswer = useCallback(
@@ -49,23 +48,29 @@ console.log(storedAnswer.length,isQuizCompleted);
     [handleSelectedAnswer]
   );
 
+
   return (
     <div id="quiz">
-      <div id="question">
-        <ProgressBar
-          key={questionIndex}
-          timeout={10000}
-          onTimeout={skipAnswer}
-        />
-        <h2>{QUESTIONS[questionIndex].text}</h2>
-        <Answer
-          key={questionIndex+290}
-          answers={QUESTIONS[questionIndex].answers}
-          selectedAnswer={storedAnswer[storedAnswer.length - 1]}
-          answerState={answerState}
-          onSelect={handleSelectedAnswer}
-        />
-      </div>
+      {!isQuizCompleted && (
+        <div id="question">
+          <ProgressBar
+            key={questionIndex}
+            timeout={10000}
+            onTimeout={skipAnswer}
+            stopProgressBar={stopProgressBar}
+          />
+          <h2>{QUESTIONS[questionIndex].text}</h2>
+          <Answer
+            key={questionIndex + 290}
+            answers={QUESTIONS[questionIndex].answers}
+            selectedAnswer={storedAnswer[storedAnswer.length - 1]}
+            answerState={answerState}
+            onSelect={handleSelectedAnswer}
+            stopProgressBar={stopProgressBar}
+          />
+        </div>
+      )}
+      {isQuizCompleted && <GameOverPage answers={storedAnswer}/>}
     </div>
   );
 }
