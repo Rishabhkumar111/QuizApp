@@ -11,7 +11,6 @@ export default function Quiz() {
   const questionIndex =
     answerState === "" ? storedAnswer.length : storedAnswer.length - 1;
   const [isQuizCompleted, setisQuizCompleted] = useState(false);
-  console.log(storedAnswer.length, isQuizCompleted);
   const [stopProgressBar, setStopProgressBar] = useState(false);
 
   const handleSelectedAnswer = useCallback(
