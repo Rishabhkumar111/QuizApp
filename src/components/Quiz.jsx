@@ -1,21 +1,23 @@
 import { useCallback, useState } from "react";
 import QUESTIONS from "../questions.js";
-import trophyImg from "../assets/quiz-complete.png";
 import ProgressBar from "./ProgressBar.jsx";
 import Answer from "./Answer.jsx";
 import GameOverPage from "./GameOverPage.jsx";
 
-export default function Quiz() {
+export default function Quiz({
+  storedAnswer,
+  setStoredAnswer,
+  isQuizCompleted,
+  setisQuizCompleted
+}) {
   const [answerState, setAnswerState] = useState("");
-  const [storedAnswer, setStoredAnswer] = useState([]);
   const questionIndex =
     answerState === "" ? storedAnswer.length : storedAnswer.length - 1;
-  const [isQuizCompleted, setisQuizCompleted] = useState(false);
   const [stopProgressBar, setStopProgressBar] = useState(false);
 
   const handleSelectedAnswer = useCallback(
     function handleSelectedAnswer(selectedAnswer) {
-        setStopProgressBar(true);
+      setStopProgressBar(true);
       setAnswerState("answered");
       setStoredAnswer((preAns) => {
         return [...preAns, selectedAnswer];
@@ -46,8 +48,7 @@ export default function Quiz() {
     () => handleSelectedAnswer(null),
     [handleSelectedAnswer]
   );
-
-
+  
   return (
     <div id="quiz">
       {!isQuizCompleted && (
@@ -69,7 +70,7 @@ export default function Quiz() {
           />
         </div>
       )}
-      {isQuizCompleted && <GameOverPage answers={storedAnswer}/>}
+      {isQuizCompleted && <GameOverPage answers={storedAnswer} />}
     </div>
   );
 }
